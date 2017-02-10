@@ -22,7 +22,7 @@ from gi.repository import Gst, GObject
 
 class RTPClient:
   # gst-launch-1.0 -v  udpsrc port=5000 ! "application/x-rtp, clock-rate=90000, encoding-name=(string)H264, payload=96,framerate=30/1" ! rtph264depay! avdec_h264 ! fpsdisplaysink sync=true text-overlay=false  fps-update-interval=600  video-sink=fakesink
-  def __init__(self, port=5000, timeout=60, width=320, height=240, fr=30, stats_file=None, lazy_printing=False):
+  def __init__(self, port=5000, timeout=60, width=320, height=240, fr=60, stats_file=None, lazy_printing=False):
     self.use_buffer = True
     self.metric_period = 1.0
     self._logger = logging.getLogger(__name__)
@@ -189,10 +189,12 @@ def main():
   parser.add_argument('-t', '--timeout', type=int, default=60, help='Time to live.')
   parser.add_argument('-s', '--statsfile', default=None, help='File to log stats to.')
   parser.add_argument('-l', '--lazy_printing', default=False, action='store_true') 
-  parser.add_argument('-f', '--framerate', default=30, type=int, help='Framerate (should match server)')
+  parser.add_argument('-f', '--framerate', default=60, type=int, help='Framerate (should match server)')
   parser.add_argument('-H', '--height', default=720, type=int, help='Geometry of frame: height')
   parser.add_argument('-W', '--width', default=1280, type=int, help='Geometry of frame: width')
   args = parser.parse_args()
+  
+  print(args)
   
   client = RTPClient(port=args.port, timeout=args.timeout, stats_file=args.statsfile,  width=args.width, height=args.height, fr=args.framerate, lazy_printing=args.lazy_printing)
 

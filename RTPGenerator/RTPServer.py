@@ -2,6 +2,7 @@
 import gi
 import time
 import argparse
+import signal
 
 gi.require_version('Gst', '1.0')
 from gi.repository import Gst, GObject
@@ -13,10 +14,19 @@ class RTPServer:
   
   pipeline=None
   
-  def __init__(self, fr=30, width=320, height=240, port=5000, client='localhost', stats_file=None):
+  def __init__(self, fr=60, width=320, height=240, port=5000, client='localhost', stats_file=None):
     self.client=client
     self.port = port
     use_timeoverlay = False
+    
+    # Try to exit gracefully
+    for i in [x for x in dir(signal) if x.startswith("SIG")]:
+      try:
+        signum = getattr(signal,i)
+        signal.signal(signum,self.sighandler)
+      except (RuntimeError,ValueError),m:
+        print "Not handling signal %s"%i
+        pass
     
     if stats_file != None:
       try:
@@ -72,7 +82,12 @@ class RTPServer:
     self.pay.link(self.sink)
     
     self.bus = self.pipeline.get_bus()
-    
+  
+  def sighandler(self, signum, frame):
+    print("Caught signal %d" % signum)
+    self.stop()
+    exit()
+  
   def set_start(self):
     ret = self.pipeline.set_state(Gst.State.PLAYING)
     if ret == Gst.StateChangeReturn.FAILURE:
@@ -103,6 +118,8 @@ class RTPServer:
   
   def stop(self):
     self.pipeline.set_state(Gst.State.NULL)
+    if self.stats_file != None:
+      self.stats_file.close()
     
   def output(self, mesg):
     if self.stats_file == None:
@@ -116,7 +133,7 @@ def main():
   parser.add_argument('-t', '--timeout', type=int, default=0, help="Time till server is automatically killed (if none given, server runs till killed)")
   parser.add_argument('-c', '--client', default='localhost', help="Client (RTP is 1:1, use RTSP for 1:many)")
   parser.add_argument('-p', '--port', type=int, default=5000, help="Server port")
-  parser.add_argument('-f', '--framerate', type=int, default=30, help='Desired framerate for video served.')  
+  parser.add_argument('-f', '--framerate', type=int, default=60, help='Desired framerate for video served.')  
   parser.add_argument('-s', '--statfile', default=None, help='Name of file to log stats in.')
   parser.add_argument('-W', '--width', type=int, default=1280, help='Width of video frame.')
   parser.add_argument('-H', '--height', type=int, default=720, help='Height of video frame.')
