@@ -27,9 +27,11 @@ class RTPClient:
     self.metric_period = 1.0
     self._logger = logging.getLogger(__name__)
     self.timeout = timeout
+    self.fr = fr
     self.exit = False
     self.port = port
     self.lazy_printing = lazy_printing
+    self.last_report = None
     
     if stats_file == None:
       self.stats_file = None
@@ -77,7 +79,7 @@ class RTPClient:
     self.fsink = Gst.ElementFactory.make('fpsdisplaysink')
     self.fsink.set_property('sync', 'false')
     self.fsink.set_property('text-overlay', 'false')
-    self.fsink.set_property('fps-update-interval', 600)
+    self.fsink.set_property('fps-update-interval', 500)
     self.sink = Gst.ElementFactory.make('fakesink')
     self.fsink.set_property('video-sink', self.sink)
     
@@ -123,11 +125,11 @@ class RTPClient:
       s = self.buffer.get_property('stats')
       rtx = s.get_value('rtx-count')
       buffer_fill = self.buffer.get_property('percent')
-      mesg = ("%s MIN:%d MAX:%d FPS:%d DropPS:%d RTX-count:%s Buffer:%s" %(ts, minfps, maxfps, rend-self.rend,drop-self.drop, rtx-self.rtx, str(buffer_fill)))
+      mesg = ("%s MIN:%d MAX:%d FPS:%d DropPS:%d RTX-count:%s Buffer:%s" %(ts, minfps/2,maxfps/2, (rend-self.rend)/2,drop-self.drop, rtx-self.rtx, str(buffer_fill)))
       self.rtx = rtx
     else:
       buffer_fill = 0
-      mesg = ("%s FPS:%d DropPS:%d RTX-count:%s Buffer:%s" %(ts, rend-self.rend,drop-self.drop, "-1", "-1"))
+      mesg = ("%s FPS:%d DropPS:%d RTX-count:%s Buffer:%s" %(ts, (rend-self.rend)/2,drop-self.drop, "-1", "-1"))
     self.output(mesg)
     self.drop = drop
     self.rend = rend
