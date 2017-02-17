@@ -14,7 +14,7 @@ class RTPServer:
   
   pipeline=None
   
-  def __init__(self, fr=60, width=320, height=240, port=5000, client='localhost', stats_file=None):
+  def __init__(self, fr=30, width=320, height=240, port=5000, client='localhost', stats_file=None):
     self.client=client
     self.port = port
     use_timeoverlay = False
@@ -133,7 +133,7 @@ def main():
   parser.add_argument('-t', '--timeout', type=int, default=0, help="Time till server is automatically killed (if none given, server runs till killed)")
   parser.add_argument('-c', '--client', default='localhost', help="Client (RTP is 1:1, use RTSP for 1:many)")
   parser.add_argument('-p', '--port', type=int, default=5000, help="Server port")
-  parser.add_argument('-f', '--framerate', type=int, default=60, help='Desired framerate for video served.')  
+  parser.add_argument('-f', '--framerate', type=int, default=30, help='Desired framerate for video served.')  
   parser.add_argument('-s', '--statfile', default=None, help='Name of file to log stats in.')
   parser.add_argument('-W', '--width', type=int, default=1280, help='Width of video frame.')
   parser.add_argument('-H', '--height', type=int, default=720, help='Height of video frame.')
