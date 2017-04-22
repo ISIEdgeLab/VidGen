@@ -69,7 +69,7 @@ class RTPClient:
       self.buffer.set_property('mode', 'synced')
       self.buffer.set_property('drop-on-latency', 'true')
       self.buffer.set_property('latency', 200)
-      self.buffer.set_property('do-retransmission', 'true')
+      self.buffer.set_property('do-retransmission', 'false')
       self.buffer.set_property('rtx-max-retries', 0)
       self.buffer.set_property('rtx-min-retry-timeout', 50)
       self.buffer.set_property('mode', 0)
